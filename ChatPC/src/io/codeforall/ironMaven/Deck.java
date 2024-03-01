@@ -18,6 +18,8 @@ public class Deck {
                 System.out.println(card);
             }
         }
+        shuffle();
+        System.out.println(cardDeck.size());
 
 
     }
@@ -27,16 +29,15 @@ public class Deck {
     }
 
     public Card dealCard() {
-        if (!cardDeck.isEmpty()) {
-            return cardDeck.removeFirst();
-        } else {
-            System.out.println("Deck is empty.");
-            return null;
-        }
+        return cardDeck.poll();
     }
 
-    public static void main(String[] args) {
-        new Deck();
+    public LinkedList<Card> getCardDeck() {
+        return cardDeck;
+    }
+
+    public void setCardDeck(LinkedList<Card> cardDeck) {
+        this.cardDeck = cardDeck;
     }
 }
 
