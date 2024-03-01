@@ -1,12 +1,9 @@
 package io.codeforall.ironMaven;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
+import org.academiadecodigo.bootcamp.Prompt;
+
+import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client {
 
@@ -18,17 +15,20 @@ public class Client {
     private String message;
     private Server server;
 
-    private Card[]
+    private Card[] cards;
+    private Prompt prompt;
 
 
 
     public Client(Server server, Socket clientSocket) {
         try {
-            this.name = "User " + server.getClientLinkedList().size();
+            this.name = "User " + server.getPlayers().size();
             this.clientSocket = clientSocket;
             this.server = server;
+
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new DataOutputStream(clientSocket.getOutputStream());
+            this.prompt = new Prompt(clientSocket.getInputStream(),new PrintStream(out));
 
 
             System.out.println("new client");
@@ -36,6 +36,10 @@ public class Client {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Prompt getPrompt() {
+        return prompt;
     }
 
     public String getName() {
