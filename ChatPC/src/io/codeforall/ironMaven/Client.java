@@ -1,54 +1,46 @@
 package io.codeforall.ironMaven;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.academiadecodigo.bootcamp.Prompt;
+
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.LinkedList;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
-import java.util.LinkedList;
-
 public class Client {
+
     private String name;
     private Socket clientSocket;
     private BufferedReader in;
     private DataOutputStream out;
+    private PrintStream printStream;
+    private Prompt prompt;
+    private String message;
     private Server server;
-    private LinkedList<Card> hand;
     private int bet;
-
     private int betTotal;
-    private int money = 100; // Starting money
+    private int money = 100;
+
+    private LinkedList<Card> hand = new LinkedList<>();
+
 
     public Client(Server server, Socket clientSocket) {
         try {
-            this.name = "User " + server.getClientLinkedList().size();
+            this.name = "User " + server.getPlayers().size();
             this.clientSocket = clientSocket;
             this.server = server;
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             out = new DataOutputStream(clientSocket.getOutputStream());
-            this.hand = new LinkedList<>();
-            this.bet = 0;
+            printStream = new PrintStream(out);
+            prompt = new Prompt(clientSocket.getInputStream(), printStream);
 
-            System.out.println("New client");
+            System.out.println("new client");
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    public void stand() {
-        // Client chooses to stand, no action needed here
-    }
-
-
 
     public String getName() {
         return name;
@@ -58,29 +50,30 @@ public class Client {
         this.name = name;
     }
 
-    public Socket getClientSocket() {
-        return clientSocket;
-    }
-
-    public void setClientSocket(Socket clientSocket) {
-        this.clientSocket = clientSocket;
-    }
-
     public BufferedReader getIn() {
         return in;
-    }
-
-    public void setIn(BufferedReader in) {
-        this.in = in;
     }
 
     public DataOutputStream getOut() {
         return out;
     }
 
-    public void setOut(DataOutputStream out) {
-        this.out = out;
+    public Socket getClientSocket() {
+        return clientSocket;
     }
+
+    public Prompt getPrompt() {
+        return prompt;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
 
     public int calculateHandValue() {
         int totalValue = 0;
@@ -127,9 +120,4 @@ public class Client {
             System.out.println("Insufficient funds to double bet.");
         }
     }
-
-    public int getMoney() {
-        return money;
-    }
-
 }
