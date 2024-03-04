@@ -86,13 +86,11 @@ public class Game {
         }
         for (Player player : playersInGame) {
             for (int i = 0; i < player.getHand().size(); i++) {
-                player.totalValue=0;
+                player.totalValue = 0;
                 player.setHand(new LinkedList<>());
             }
         }
         gameDeck = new Deck();
-        broadcast(String.valueOf(gameDeck.getCardDeck().size()),gameDealer);
-
     }
 
     public void startMenu(Player player) {
@@ -114,7 +112,7 @@ public class Game {
             case 0:
                 playersInGame.add(player);
                 numberOfCurrentPlayers++;
-                broadcast(player.getName() + " joined the game ", player);
+                broadcast(" joined the game ", player);
                 break;
             case 1:
                 try {
@@ -168,7 +166,7 @@ public class Game {
     public void stand(Player player) {
         int handTotal = player.calculateHandValue();
         showTable();
-        broadcast("Stand", player);
+        broadcast(" Stand", player);
 
 
     }
@@ -243,9 +241,9 @@ public class Game {
             try {
                 if (message != null) {
                     if (player == playerThatBroadcasts) {
-                        player.getOut().write(("You(" + playerThatBroadcasts.getName() + "): ").getBytes());
-                    } else {
-                        player.getOut().write((playerThatBroadcasts.getName() + ": ").getBytes());
+                        player.getOut().write(("You(" + playerThatBroadcasts.getName() + ")").getBytes());
+                    } else if (playerThatBroadcasts != gameDealer){
+                        player.getOut().write((playerThatBroadcasts.getName()).getBytes());
                     }
                     player.getOut().write(message.getBytes());
                     player.getOut().write('\n');
@@ -262,8 +260,11 @@ public class Game {
         for (Card card : gamePlayer.getHand()) {
             str = str.concat("| " + card.toString() + " |");
         }
-        broadcast((gamePlayer.getName() + " hand is: " + str), gameDealer);
-
+        if (gamePlayer == gameDealer){
+            broadcast(("Dealer hand is: " + str), gamePlayer);
+        } else {
+            broadcast((" hand is: " + str), gamePlayer);
+        }
     }
 
 
@@ -274,7 +275,7 @@ public class Game {
             isGamePlaying = true;
             roundOver();
             delay(2000);
-            broadcast("<<<<<<<< New Round >>>>>>>>\nShuffling Cards...\n", gameDealer);
+            broadcast("\n<<<<<<<< New Round >>>>>>>>\nShuffling Cards...\n", gameDealer);
             delay(2000);
             gameDealer.dealInitialCards();
             broadcastHand(gameDealer);
@@ -306,7 +307,7 @@ public class Game {
             delay(2000);
         }
         if (gameDealer.calculateHandValue() > 21) {
-            broadcast(("Dealer busted"), gameDealer);
+            broadcast(("Dealer busted\n"), gameDealer);
         }
     }
 
