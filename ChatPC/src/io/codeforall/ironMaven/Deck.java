@@ -3,11 +3,11 @@ package io.codeforall.ironMaven;
 import java.util.Collections;
 import java.util.LinkedList;
 
-import java.util.LinkedList;
-
 public class Deck {
     private LinkedList<Card> cardDeck;
-    Suit[] suits = {Suit.DIAMONDS, Suit.CLUBS, Suit.HEARTS, Suit.SPADES};
+    char[] suits = {'\u2663', '\u2666', '\u2665', '\u2660'};
+    //Suit[] suits = {Suit.D, Suit.C, Suit.H, Suit.S};
+
 
     public Deck() {
         cardDeck = new LinkedList<>();

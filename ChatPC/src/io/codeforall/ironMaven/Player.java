@@ -20,7 +20,7 @@ public class Player extends GamePlayer {
 
     public Player(Game game, Socket clientSocket) {
         try {
-            this.setName("User " + game.getPlayersInGame().size());
+            this.setName("User " + game.getPlayersInLobby());
             this.clientSocket = clientSocket;
             this.game = game;
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));

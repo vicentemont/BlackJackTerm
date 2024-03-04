@@ -22,6 +22,7 @@ public class Game {
     private Deck gameDeck;
     private boolean round = true;
     private int numberOfCurrentPlayers;
+    private int playersInLobby;
     private int maxPlayers = 5;
     private boolean isGamePlaying;
 
@@ -43,6 +44,10 @@ public class Game {
         game.startServer();
     }
 
+    public int getPlayersInLobby() {
+        return playersInLobby;
+    }
+
     public Deck getGameDeck() {
         return gameDeck;
     }
@@ -61,6 +66,7 @@ public class Game {
                 Socket clientSocket = serverSocket.accept();
 
                 System.out.println("Connection established!");
+                playersInLobby++;
                 Player newPlayer = new Player(this, clientSocket);
                 players.add(newPlayer);
                 round = true;
@@ -75,16 +81,17 @@ public class Game {
     }
 
     public void roundOver() {
-        for (Card card : gameDealer.getHand()) {
-            gameDeck.getCardDeck().add(gameDealer.getHand().poll());
+        for (int i = 0; i < gameDealer.getHand().size(); i++) {
+            gameDealer.setHand(new LinkedList<>());
         }
-        for (Player player : playersInGame
-        ) {
-            for (Card card : player.getHand()) {
-                gameDeck.getCardDeck().add(gameDealer.getHand().poll());
+        for (Player player : playersInGame) {
+            for (int i = 0; i < player.getHand().size(); i++) {
+                player.totalValue=0;
+                player.setHand(new LinkedList<>());
             }
         }
-        round = false;
+        gameDeck = new Deck();
+        broadcast(String.valueOf(gameDeck.getCardDeck().size()),gameDealer);
 
     }
 
@@ -105,15 +112,9 @@ public class Game {
 
         switch (answerIndex) {
             case 0:
-                try {
-                    playersInGame.add(player);
-                    player.getOut().write("Alright 1".getBytes());
-                    numberOfCurrentPlayers++;
-                    broadcast(player.getName() + " joined the game ", player);
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                playersInGame.add(player);
+                numberOfCurrentPlayers++;
+                broadcast(player.getName() + " joined the game ", player);
                 break;
             case 1:
                 try {
@@ -139,6 +140,13 @@ public class Game {
         }
     }
 
+    public void showTable() {
+        broadcastHand(gameDealer);
+        for (Player p : playersInGame) {
+            broadcastHand(p);
+        }
+    }
+
     public void hit(Player player) {
         try {
             player.getOut().write("You got a new card\n".getBytes());
@@ -152,10 +160,6 @@ public class Game {
                 hitPlayMenu(player);
 
             }
-
-
-            roundOver();
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -163,13 +167,8 @@ public class Game {
 
     public void stand(Player player) {
         int handTotal = player.calculateHandValue();
-        try {
-            player.getOut().write(("You stand with " + handTotal + " points").getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        roundOver();
+        showTable();
+        broadcast("Stand", player);
 
 
     }
@@ -207,6 +206,8 @@ public class Game {
     }
 
     public void hitPlayMenu(Player player) {
+        showTable();
+
         String[] menuOptions = {"Hit", "Stand"};
         MenuInputScanner menuInputScanner = new MenuInputScanner(menuOptions);
         menuInputScanner.setMessage("Choose one of the options below:");
@@ -217,11 +218,7 @@ public class Game {
                 hit(player);
                 break;
             case 1:
-                try {
-                    player.getOut().write("Alright 2".getBytes());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                stand(player);
                 break;
             default:
                 try {
@@ -261,22 +258,27 @@ public class Game {
     }
 
     public void broadcastHand(GamePlayer gamePlayer) {
-        broadcast((gamePlayer.getName() + " hand is: "), gameDealer);
+        String str = "";
         for (Card card : gamePlayer.getHand()) {
-            broadcast(card.toString() + " ", gamePlayer);
-            delay(2000);
+            str = str.concat("| " + card.toString() + " |");
         }
+        broadcast((gamePlayer.getName() + " hand is: " + str), gameDealer);
+
     }
+
 
     public void startGame() {
 
 
         while (playersInGame.size() > 0 && round) {
             isGamePlaying = true;
-            broadcast("Shuffling Cards,,,", gameDealer);
+            roundOver();
+            delay(2000);
+            broadcast("<<<<<<<< New Round >>>>>>>>\nShuffling Cards...\n", gameDealer);
             delay(2000);
             gameDealer.dealInitialCards();
             broadcastHand(gameDealer);
+            delay(2000);
             for (Player player : playersInGame) {
                 broadcastHand(player);
                 delay(2000);
@@ -284,8 +286,27 @@ public class Game {
             for (Player player : playersInGame) {
                 playMenu(player);
             }
+            dealerPlay();
+            for (Player player : playersInGame) {
+                try {
+                    player.getOut().write(gameDealer.compareWithClient(player).getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
 
+        }
+    }
+
+    public void dealerPlay() {
+        while (gameDealer.calculateHandValue() < 17) {
+            gameDealer.hit(gameDealer);
+            broadcastHand(gameDealer);
+            delay(2000);
+        }
+        if (gameDealer.calculateHandValue() > 21) {
+            broadcast(("Dealer busted"), gameDealer);
         }
     }
 
@@ -313,7 +334,7 @@ public class Game {
             System.out.println("here");
             if (player.getClass() == Player.class) {
                 startMenu((Player) player);
-                while (isGamePlaying) {
+                if (isGamePlaying) {
                     try {
                         ((Player) player).getOut().write("A game is currently playing...".getBytes());
 
@@ -334,21 +355,6 @@ public class Game {
                 }
 
             }
-
-
-            //try {
-
-            //while ((message = player.getIn().readLine()) != null) {
-
-
-            //player.setMessage(message);
-            //broadcast(message, player);
-            //}
-            /*} catch (IOException e) {
-                throw new RuntimeException(e);
-            }*/
-
-
         }
     }
 

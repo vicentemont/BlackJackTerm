@@ -66,6 +66,10 @@ public abstract class GamePlayer {
         this.name = name;
     }
 
+    public void setHand(LinkedList<Card> hand) {
+        this.hand = hand;
+    }
+
     protected void add(Card card) {
         this.hand.add(card);
     }

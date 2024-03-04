@@ -3,16 +3,15 @@ package io.codeforall.ironMaven;
 public class Card {
 
 
-
-    private Suit suit;
+    private char suit;
     private Rank rank;
 
-    public Card(Suit suit, int rank){
+    public Card(char suit, int rank) {
         this.suit = suit;
         this.rank = new Rank(rank);
     }
 
-    public void setSuit(Suit suit) {
+    public void setSuit(char suit) {
         this.suit = suit;
     }
 
@@ -20,7 +19,7 @@ public class Card {
         this.rank = rank;
     }
 
-    public Suit getSuit() {
+    public char getSuit() {
         return suit;
     }
 
@@ -29,7 +28,7 @@ public class Card {
     }
 
     @Override
-    public String toString(){
-        return rank.getName() + " of " + suit.toString();
+    public String toString() {
+        return rank.getName() + " " + suit;
     }
 }

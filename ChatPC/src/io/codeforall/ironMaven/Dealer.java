@@ -28,14 +28,16 @@ public class Dealer extends GamePlayer {
         return deck.dealCard();
     }
 
+
+
     public String compareWithClient(Player player) {
         int dealerValue = calculateHandValue();
         int clientValue = player.calculateHandValue();
 
         if (dealerValue > 21) {
-            return "Dealer busts. Client wins.";
+            return "Dealer busted, you win!";
         } else if (clientValue > 21 || dealerValue > clientValue) {
-            return "Dealer wins.";
+            return "Dealer win.";
         } else if (dealerValue < clientValue) {
             return "Client wins.";
         } else {

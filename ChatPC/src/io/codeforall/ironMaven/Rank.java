@@ -13,18 +13,18 @@ public class Rank {
         if (cardRankValue >= 10 && cardRankValue <= 12) {
             switch (cardRankValue) {
                 case 10:
-                    this.name = "Jack";
+                    this.name = "J";
                     break;
                 case 11:
-                    this.name = "Queen";
+                    this.name = "Q";
                     break;
                 case 12:
-                    this.name = "King";
+                    this.name = "K";
                     break;
             }
             this.value = 10; // Value for Jack, Queen, King is 10
         } else if (cardRankValue == 0) {
-            this.name = "Ace";
+            this.name = "A";
             this.value = 1; // Default value for Ace is 1
         } else {
             this.name = String.valueOf(cardRankValue + 1);
